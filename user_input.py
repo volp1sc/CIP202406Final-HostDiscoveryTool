@@ -1,6 +1,7 @@
 import subprocess
 import re
 import math
+import IPUtils 
 
 def get_interface_ip(interface):
     """Get IP address for a given network interface"""
@@ -27,7 +28,7 @@ def int_input(prompt):
 # acceptable are two IP in dotted notation
 # or an IP and a gateway mask
 
-def ip_input():
+def ip_input_base():
     for i in range (4):
         valid = False
         while not valid:
@@ -45,6 +46,10 @@ def ip_input():
         else:
             ddd = int_value 
     return [aaa, bbb, ccc, ddd]
+
+def ip_input():
+    string_IPvalue = input("Input full IP value as xxx.yyy.www.zzz ")
+    return [int(x) for x in string_IPvalue.split(".")]
 
 def decode(nm_val):
     if nm_val > 0 :
