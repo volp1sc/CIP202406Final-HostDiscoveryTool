@@ -1,6 +1,6 @@
 # from user_input import user_input
 from user_input import user_input, bit, decode,ip_input
-from IPUtils import IPStringToList,IPFromListToBigval,ConvertNetMask
+from IPUtils import IPStringToList,IPFromListToBigval,ConvertNetMask,IPBigvalToList
 
 def main1():
     # get IP range
@@ -30,14 +30,14 @@ def main():
     Network = bigval & NetMask
     Hostmin = Network + 1
     print ("Network   =>", Network,"{0:b}".format(Network))
-    print ("Hostmin   =>", Hostmin,"{0:b}".format(Hostmin))
+    print ("Hostmin   =>", Hostmin,"{0:b}".format(Hostmin) , IPBigvalToList(Hostmin))
     #
     Hosts = (1 << (32-bt)) - 1
     print ("Hosts  ====>", Hosts - 1,"{0:b}".format(Hosts - 1))
     #
     Broadcast = Network | Hosts
     Hostmax = Broadcast-1
-    print ("Hostmax   =>", Hostmax,  "{0:b}".format(Hostmax)   )
+    print ("Hostmax   =>", Hostmax,  "{0:b}".format(Hostmax) , IPBigvalToList(Hostmax))
     print ("Broadcast =>", Broadcast,"{0:b}".format(Broadcast) )
 
 
