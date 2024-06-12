@@ -1,45 +1,29 @@
-# from user_input import user_input
-from user_input import user_input, bit, decode,ip_input
-from IPUtils import IPStringToList,IPFromListToBigval,ConvertNetMask,IPBigvalToList
+from user_input import user_input, decode, ip_input
+from IPUtils import IPStringToList,IPFromListToBigval,ConvertNetMask,IPBigvalToList,IPString,get_min_max_IP_Range
+from system_utilities import get_ping_answ, parse_ping_answ
 
-def main1():
-    # get IP range
-    answ = user_input()
-    print(answ)
-
-def main2():
-    ip = [192,168,0,240]
-    nip = ip.copy()
-    bt = int(input("Range ? "))
-    print(ip, nip, bt)
-    bit(ip,nip,bt)
-    print(ip, nip, bt)
-
-def main():
+def maintest():
     ip = [192,168,0,240]
     ip = ip_input()
     # IPStringToList to be used from string
-    # nip = ip.copy()
-    bt = int(input("Range ? "))
-    bigval = IPFromListToBigval(ip)
-    NetMask = ConvertNetMask(bt)
-        #
-    print ("IPAsStr  ==>", bigval, "{0:b}".format(bigval))
-    print ("NetMask  ==>",NetMask, "{0:b}".format(NetMask),"\n#")
-    #
-    Network = bigval & NetMask
-    Hostmin = Network + 1
-    print ("Network   =>", Network,"{0:b}".format(Network))
+    bt = int(input("Enter IP Range (Netmask) as an Integer ? "))
+    Hostmin, Hostmax = get_min_max_IP_Range(ip,bt)
     print ("Hostmin   =>", Hostmin,"{0:b}".format(Hostmin) , IPBigvalToList(Hostmin))
-    #
-    Hosts = (1 << (32-bt)) - 1
-    print ("Hosts  ====>", Hosts - 1,"{0:b}".format(Hosts - 1))
-    #
-    Broadcast = Network | Hosts
-    Hostmax = Broadcast-1
     print ("Hostmax   =>", Hostmax,  "{0:b}".format(Hostmax) , IPBigvalToList(Hostmax))
-    print ("Broadcast =>", Broadcast,"{0:b}".format(Broadcast) )
 
+def get_hosts_answers(hostmin,hostmax):
+    num_hm = IPFromListToBigval((hostmin))
+    num_hx = IPFromListToBigval((hostmax))
+    for host in range(num_hm,num_hx+1) :
+        answer = (get_ping_answ(IPString(IPBigvalToList(host))))
+        print (parse_ping_answ(answer))
+
+
+def main():
+    hostmin, hostmax = user_input()
+    ### print (hostmin, hostmax)
+    # ready to ping for hosts status
+    get_hosts_answers(hostmin,hostmax)
 
 # print('INIZIO')
 if __name__ == '__main__':

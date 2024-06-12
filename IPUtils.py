@@ -1,3 +1,6 @@
+def IPString(IPList):
+    ## print ("In IPString : current value of IPList", IPList)
+    return (str(IPList[0])+"."+str(IPList[1])+"."+str(IPList[2])+"."+str(IPList[3]))
 
 def IPStringToList(string):
     return [int(x) for x in string.split(".")]
@@ -25,6 +28,32 @@ def ConvertNetMask(Bits):
         #print ("{0:b}".format(NetMask))
     NetMask = NetMask << (32 - Bits)    
     return NetMask
+
+def get_min_max_IP_Range(ip,bt):
+    # Convert IP list to Long Integer
+    bigval = IPFromListToBigval(ip)
+    # Convert /xx bitmask to Long Integer
+    NetMask = ConvertNetMask(bt)
+    #
+    ## print ("IPAsStr  ==>", bigval, "{0:b}".format(bigval))
+    ## print ("NetMask  ==>",NetMask, "{0:b}".format(NetMask),"\n#")
+    #
+    Network = bigval & NetMask
+    ###Hostmin = Network + 1
+    Hostmin = Network
+    ## print ("Network   =>", Network,"{0:b}".format(Network))
+    ## print ("Hostmin   =>", Hostmin,"{0:b}".format(Hostmin) , IPBigvalToList(Hostmin))
+    #
+    Hosts = (1 << (32-bt)) - 1
+    ## print ("Hosts  ====>", Hosts - 1,"{0:b}".format(Hosts - 1))
+    #
+    Broadcast = Network | Hosts
+    ###Hostmax = Broadcast-1
+    Hostmax = Broadcast
+    ## print ("Hostmax   =>", Hostmax,  "{0:b}".format(Hostmax) , IPBigvalToList(Hostmax))
+    ## print ("Broadcast =>", Broadcast,"{0:b}".format(Broadcast) )
+    return Hostmin, Hostmax
+
 
 def main():
     # era 192.168.0.240 uso solo 240

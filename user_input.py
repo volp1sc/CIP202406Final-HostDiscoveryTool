@@ -1,21 +1,7 @@
-import subprocess
-import re
 import math
-import IPUtils 
-
-def get_interface_ip(interface):
-    """Get IP address for a given network interface"""
-    command = f"ip addr show {interface}"
-    output = subprocess.check_output(command, shell=True).decode()
-
-    ip_pattern = r'inet\s+(\d+\.\d+\.\d+\.\d+)'
-    match = re.search(ip_pattern, output)
-    
-    if match:
-        ip_address = match.group(1)
-        return ip_address
-    else:
-        return None
+import re
+from IPUtils import get_min_max_IP_Range,IPBigvalToList,IPString
+from system_utilities import get_interface_ip
 
 def int_input(prompt):
     str_value = input(prompt)
@@ -28,42 +14,42 @@ def int_input(prompt):
 # acceptable are two IP in dotted notation
 # or an IP and a gateway mask
 
-def ip_input_base():
-    for i in range (4):
-        valid = False
-        while not valid:
-            int_value = int_input("Input integer value in the 0-255 range for "+str(i+1)+"^ subnet : ")
-            if int_value >= 0 and int_value <= 255:
-                    valid = True
-            else:
-                print("Numeric value not in 0-255 range, repeat please")
-        if i == 0:
-            aaa = int_value
-        elif i == 1:
-            bbb = int_value
-        elif i == 2:
-            ccc = int_value
-        else:
-            ddd = int_value 
-    return [aaa, bbb, ccc, ddd]
-
-def ip_input():
-    string_IPvalue = input("Input full IP value as xxx.yyy.www.zzz ")
-    return [int(x) for x in string_IPvalue.split(".")]
-
 def decode(nm_val):
-    if nm_val > 0 :
-        print("decode nm_val", nm_val, float(nm_val), float(2))
-        int_val = int(math.log(float(nm_val),float(2)))
+    # from integer to bits
+    ### print ("@ decode start" , nm_val)
+    int_val = 0
+    if nm_val >= 0 :
+        if nm_val in [0, 128, 192, 224, 240, 248, 252, 254, 255] :
+            ### print("@ decode nm_val acceptable", nm_val, float(nm_val), float(2))
+            # int_val = int(math.log(float(nm_val),float(2)))
+            if nm_val == 0 :
+                int_val = 0
+            elif nm_val == 128 :
+                int_val = 1
+            elif nm_val == 192 :
+                int_val = 2
+            elif nm_val == 224 :
+                int_val = 3
+            elif nm_val == 240 :
+                int_val = 4
+            elif nm_val == 248 :
+                int_val = 5
+            elif nm_val == 252 :
+                int_val = 6
+            elif nm_val == 255 :
+                int_val = 8
+        else :
+            print ("@ decode nm_val unacceptable value forced to 0")
+            print ("use only one of the following 128, 192, 224, 240, 248, 252, 254, 255")
     else :
         int_val = 0
     #if nm_val <= 0 :
     #    return 0
-    print(int_val, 8 - int_val)
-    return 8-int_val
+    ### print(int_val, 8 - int_val)
+    return int_val
 
 def transform_bit(nm):
-    # from digit to integer
+    # from xxx.yyy.www.zzz digit to biwise integer
     if nm[0] < 255 :
         int = decode(nm[0])
         return int
@@ -75,100 +61,117 @@ def transform_bit(nm):
         return 16 + int
     elif nm[0] == 255 and nm[1] == 255 and nm[2] == 255 and nm[3] <= 255:
         int = decode(nm[3])
-        print("In transform_bit in", nm[3]," out",int)
+        ###print("In transform_bit in", nm[3]," out",int)
         return 24 + int
     else:
         return 0 #nm
     # return bitwise netmask
+
+"""
+    ip_pattern = r'inet\s+(\d+\.\d+\.\d+\.\d+)'
+    match = re.search(ip_pattern, output)
+    
+    if match:
+        ip_address = match.group(1)
+        return ip_address
+    else:
+        return None
+"""
+
+def not_valid_ip(stringIP):
+    pattern = r'\d+\.\d+\.\d+\.\d+'
+    match = re.search(pattern, stringIP)
+    ###print (pattern)
+    ###print (stringIP)
+    match = re.search(pattern, stringIP)
+    if match == None :
+        return True
+    #
+    pattern = r'\d+\.\d+\.\d+\.\d+/\d+'
+    ###print (pattern)
+    ###print (stringIP)
+    match = re.search(pattern, stringIP)
+    ###print (match)
+    if match == None:
+        return False
+    else:
+        print ("wrong digits", match)
+        print ("use only xxx.yyy.www.zzz no other characters")
+        return True
+
+def ip_input():
+    string_IPvalue = input("Input full IP value as xxx.yyy.www.zzz ")
+    while not_valid_ip(string_IPvalue) :
+        string_IPvalue = input("Input full IP value as xxx.yyy.www.zzz ")
+    return [int(x) for x in string_IPvalue.split(".")]
 
 def nm_input(starting,ending,flag):
     # if flag is True entering a dotted netmask
     # if flag is False entering a bitwise netmask
     # get user value and process it
     if flag :
+        print("Enter a string in the xxx.yyy.www.zzz format")
         netmask = ip_input()
         bit_netmask = transform_bit(netmask)
     else:
-        bit_netmask = int_input("Enter an integer value from 0 to 32 : ") 
-    print("ready to calculate final after",flag," we computed",bit_netmask)
+        bit_netmask = int_input("Enter an integer value from 24 to 32 : ") 
+    ### print("ready to calculate final with",flag," and transformed netmask",bit_netmask)
     # calculate ending using starting and netmask
-    calculate_final(starting,ending, int(bit_netmask))
-    return starting, ending
-
-def bit(ip,nip,num):
-    # print ("bit " + str(num))
-    powr = int(math.log((ip[3]),2))
-    lor = int(ip[3] - (math.pow(2 , powr)))
-    print ("IP, lor 2 powr ", ip[3], lor, 2, powr)
-    if num == 0 :
-        ip[3] = 0
-        nip[3] = 255
-    elif num == 1 :
-        if ip[3] >= 128:
-            ip[3] = 128
-            nip[3] = 255
-        else:
-            ip[3] = 0
-            nip[3] = 127
-    elif num == 2 :
-        if ip[3] >= 192:
-            ip[3] = 192
-            nip[3] = 255
-        elif ip[3] >= 128 and ip[3] < 192:
-            ip[3] = 128
-            nip[3] = 191
-        elif ip[3] >= 64 and ip[3] < 128:
-            ip[3] = 64
-            nip[3] = 127
-        else:
-            ip[3] = 0
-            nip[3] = 63
-    elif num == 3 :
-        ret_num = 224    
-    elif num == 4 :
-        ret_num = 240    
-    elif num == 4 :
-        ret_num = 248
-    elif num == 5 :
-        ret_num = 252    
-    elif num == 6 :
-        ret_num = 254    
-    elif num == 7 :
-        ret_num = 255 
-    return 
+    hostmin, hostmax = calculate_final(starting,ending, int(bit_netmask))
+    return hostmin, hostmax
 
 def calculate_final(ip,nip,nm):
-    print (ip, nip, nm)
+    ###print (IPString(ip), IPString(nip), int(nm))
     # apply netmask on starting to calculate final
     if nm < 24 :
-        print("Too big scan, reduced to /24")
+        print("Too big scan, forced to /24")
+        nm = 24
     else:
         # bit(ip,nip,nm-24)
-        # print("Calculate final ",ip[3], nip[3])
-        print ("Calculate final ",ip, nip)
-    return 
+        ##print("Calculate final ",ip[3], nip[3])
+        ###print ("Calculate final ",IPString(ip), IPString(nip), int(nm))
+        pass
+    ip, nip = get_min_max_IP_Range(ip,nm)
+    ###print((ip)," ^^^",(nip))
+    ip = IPBigvalToList(ip)
+    nip = IPBigvalToList(nip)
+    print(IPString(ip),"***",IPString(nip))
+    return ip, nip
+
+def validate_proposed_IP(starting,ip_address):
+    ###print ("@ validate", starting, ip_address)
+    if (starting[0] == ip_address[0]) & (starting[1] == ip_address[1]) & (starting[2] == ip_address[2]) :
+        ## print("Valid search ip on the same network")
+        pass
+    else:
+        print("Your Network IP address "+ IPString(ip_address)+ " and your input "+ IPString(starting)+ " are not on the same LAN")
+        print("Please enter a valid IP value on the same /24 subnet ?")
+        repeat = ip_input()
+        while not ((repeat[0] == ip_address[0]) & (repeat[1] == ip_address[1]) & (repeat[2] == ip_address[2]) ): 
+            print("Please enter a valid IP value on the same /24 subnet ?")
+            repeat = ip_input()
+        starting = repeat
 
 def user_input():
     # present user the current eth0 address
     interface_name = "eth0"
-    ip_address = get_interface_ip(interface_name)
-    if ip_address:
-        print(f"Current IP address of {interface_name}: {ip_address}")
+    str_ip_address = get_interface_ip(interface_name)
+    if str_ip_address:
+        print(f"Current IP address of {interface_name}: {str_ip_address}")
     else:
         print(f"No IP address found for {interface_name} may it be a wireless link ?")
     #
+    ip_address = [int(x) for x in str_ip_address.split(".")]
     print("Select a starting IP range to the Network Discovery")
     # print("Use dotted IP notation aaa.bbb.ccc.ddd")
     # use tailored input to discriminate good values; return a list of 4 value 0-255
     starting = ip_input()
-    valid = input("Are eth0 ", ip_address, " and your input", starting, " on the same LAN ? [N to restart] ")
-    if valid == "N" : 
-        starting = ip_input()
+    validate_proposed_IP(starting,ip_address)
+    #
     #
     print("Specify the end of the range in one of the following notation")
     print("1. Dotted IP\n2. Dotted Netmask\n3. Bitwise Netmask")
     #
-    # possible custom integer input like int_input("prompt",range)
     #
     correct = False
     while not correct :
@@ -176,20 +179,43 @@ def user_input():
         if choice == 1 :
             print("Selected Dotted IP")
             ending = ip_input()
+            hostmin = starting.copy()
+            hostmax = ending.copy()
             correct = True
         elif choice == 2 :
             print("Selected Dotted Netmask")
             ending = starting.copy()
-            nm_input(starting,ending,True)
+            hostmin, hostmax = nm_input(starting,ending,True)
             correct = True
         elif choice == 3 :
             print("Selected Bitwise Netmask")
             ending = starting.copy()
-            nm_input(starting,ending,False)
+            hostmin, hostmax = nm_input(starting,ending,False)
             correct = True
         else :
-            choice = input("Unknown choice select again : ")
+            # choice = input("Unknown choice select again : ")
+            print ("Unknown choice select again")
+            correct = False
     #
-    print("Current values are :\nstarting |"+ str(starting) + "| ending |" + str(ending) + "| netmask |" + str(choice) + "|")
+    ### print("Current values are :\nstarting |"+ str(starting) + "| ending |" + str(ending) + "| netmask kind |" + str(choice) + "|")
     # choice = ['192.168.0.240']  # '192.168.0.240/32'
-    return [starting,ending]
+    ### print ("@ end user_input", hostmin, hostmax)
+    return hostmin, hostmax
+
+def main1():
+    ip_address = [192,168,0,240]
+    starting = ip_input() #[192,168,1,26]
+    #validate_proposed_IP(starting,ip_address)
+    nip = starting.copy()
+    nm = 25
+    hostmin, hostmax = calculate_final(starting,nip,nm)
+
+def main():
+    hostmin, hostmax = user_input()
+    print (IPString(hostmin),"<->",IPString(hostmax))
+
+
+# print('INIZIO')
+if __name__ == '__main__':
+    main()
+# print('FINE')
