@@ -1,5 +1,5 @@
 from user_input import user_input
-from host_discovery_main import get_hosts_answers
+from host_discovery import get_hosts_answers
 
 def main():
     #
