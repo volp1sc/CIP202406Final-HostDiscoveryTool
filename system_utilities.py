@@ -1,6 +1,8 @@
 import subprocess
 import re
 
+# mainly interact with the Console and 
+# perform Regular Expression search
 
 def get_interface_ip(interface):
     """Get IP address for a given network interface"""
@@ -35,9 +37,9 @@ def parse_ping_answ(output) :
     match = re.search(pattern, output)
     
     if match:
-        return "DOWN"
+        return "Down"
     else:
-        return "UP"
+        return "Up"
 
 # 100% packet loss
 

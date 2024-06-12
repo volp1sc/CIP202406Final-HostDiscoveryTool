@@ -1,4 +1,3 @@
-import math
 import re
 from IPUtils import get_min_max_IP_Range,IPBigvalToList,IPString
 from system_utilities import get_interface_ip
@@ -135,7 +134,7 @@ def calculate_final(ip,nip,nm):
     ###print((ip)," ^^^",(nip))
     ip = IPBigvalToList(ip)
     nip = IPBigvalToList(nip)
-    print(IPString(ip),"***",IPString(nip))
+    print("\nThe calculated hosts are :\nfrom ("+IPString(ip)+") to ("+IPString(nip)+")\n")
     return ip, nip
 
 def validate_proposed_IP(starting,ip_address):
@@ -157,38 +156,38 @@ def user_input():
     interface_name = "eth0"
     str_ip_address = get_interface_ip(interface_name)
     if str_ip_address:
-        print(f"Current IP address of {interface_name}: {str_ip_address}")
+        print(f"IP address of current network interface {interface_name} is {str_ip_address}")
     else:
-        print(f"No IP address found for {interface_name} may it be a wireless link ?")
+        print(f"No IP address found for {interface_name} may it be not the first network interface?")
     #
     ip_address = [int(x) for x in str_ip_address.split(".")]
-    print("Select a starting IP range to the Network Discovery")
+    print("\nSelect a starting IP range to the Network Discovery\n")
     # print("Use dotted IP notation aaa.bbb.ccc.ddd")
     # use tailored input to discriminate good values; return a list of 4 value 0-255
     starting = ip_input()
     validate_proposed_IP(starting,ip_address)
     #
     #
-    print("Specify the end of the range in one of the following notation")
-    print("1. Dotted IP\n2. Dotted Netmask\n3. Bitwise Netmask")
+    print("\nSpecify the range in one of the following notation")
+    print("1. Dotted  End-IP\n2. Dotted  Netmask\n3. Bitwise Netmask")
     #
     #
     correct = False
     while not correct :
         choice = int_input("Select a value among [1,2,3] -> ")
         if choice == 1 :
-            print("Selected Dotted IP")
+            print("\nSelected Dotted IP")
             ending = ip_input()
             hostmin = starting.copy()
             hostmax = ending.copy()
             correct = True
         elif choice == 2 :
-            print("Selected Dotted Netmask")
+            print("\nSelected Dotted Netmask")
             ending = starting.copy()
             hostmin, hostmax = nm_input(starting,ending,True)
             correct = True
         elif choice == 3 :
-            print("Selected Bitwise Netmask")
+            print("\nSelected Bitwise Netmask")
             ending = starting.copy()
             hostmin, hostmax = nm_input(starting,ending,False)
             correct = True
@@ -202,13 +201,6 @@ def user_input():
     ### print ("@ end user_input", hostmin, hostmax)
     return hostmin, hostmax
 
-def main1():
-    ip_address = [192,168,0,240]
-    starting = ip_input() #[192,168,1,26]
-    #validate_proposed_IP(starting,ip_address)
-    nip = starting.copy()
-    nm = 25
-    hostmin, hostmax = calculate_final(starting,nip,nm)
 
 def main():
     hostmin, hostmax = user_input()

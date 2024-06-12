@@ -1,3 +1,5 @@
+# manage to bit e net conversione
+
 def IPString(IPList):
     ## print ("In IPString : current value of IPList", IPList)
     return (str(IPList[0])+"."+str(IPList[1])+"."+str(IPList[2])+"."+str(IPList[3]))
