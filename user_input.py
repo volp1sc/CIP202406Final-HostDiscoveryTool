@@ -1,6 +1,6 @@
 import re
 from IPUtils import get_min_max_IP_Range,IPBigvalToList,IPString
-from system_utilities import get_interface_ip
+from system_utilities import inquire_network
 
 def int_input(prompt):
     str_value = input(prompt)
@@ -141,31 +141,26 @@ def validate_proposed_IP(starting,ip_address):
     ###print ("@ validate", starting, ip_address)
     if (starting[0] == ip_address[0]) & (starting[1] == ip_address[1]) & (starting[2] == ip_address[2]) :
         ## print("Valid search ip on the same network")
-        pass
+        return starting
     else:
-        print("Your Network IP address "+ IPString(ip_address)+ " and your input "+ IPString(starting)+ " are not on the same LAN")
-        print("Please enter a valid IP value on the same /24 subnet ?")
+        print("\nYour Network IP address "+ IPString(ip_address)+ " and your input "+ IPString(starting)+ " are not on the same LAN")
+        print("\nPlease enter a valid IP value on the same /24 subnet ?\n")
         repeat = ip_input()
         while not ((repeat[0] == ip_address[0]) & (repeat[1] == ip_address[1]) & (repeat[2] == ip_address[2]) ): 
-            print("Please enter a valid IP value on the same /24 subnet ?")
+            print("\nPlease enter a valid IP value on the same /24 subnet ?\n")
             repeat = ip_input()
-        starting = repeat
+        return repeat
+
 
 def user_input():
-    # present user the current eth0 address
-    interface_name = "eth0"
-    str_ip_address = get_interface_ip(interface_name)
-    if str_ip_address:
-        print(f"IP address of current network interface {interface_name} is {str_ip_address}")
-    else:
-        print(f"No IP address found for {interface_name} may it be not the first network interface?")
-    #
-    ip_address = [int(x) for x in str_ip_address.split(".")]
+    print ("Welcome to the Network Discovery Tool\n")
+    ip_address = inquire_network()
+    ##print (f"\nYour current IP address is {ip_address}")
     print("\nSelect a starting IP range to the Network Discovery\n")
     # print("Use dotted IP notation aaa.bbb.ccc.ddd")
     # use tailored input to discriminate good values; return a list of 4 value 0-255
     starting = ip_input()
-    validate_proposed_IP(starting,ip_address)
+    starting = validate_proposed_IP(starting,ip_address)
     #
     #
     print("\nSpecify the range in one of the following notation")
