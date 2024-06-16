@@ -23,4 +23,3 @@ The output is only on screen
 
 Current release is 17th of June 2024
 I am based in Northen Italy
-
