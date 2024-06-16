@@ -1,20 +1,7 @@
 import subprocess
 import re
 
-def inquire_network():
-    # present user the current eth0 address
-    ###interface_name = "eth0"
-    interface_name = get_active_link()
-    ##print (f"You are currently conncted by means of the {interface_name} network card")
-    str_ip_address = get_interface_ip(interface_name)
-    if str_ip_address:
-        print(f"IP address of current network interface {interface_name} is {str_ip_address}")
-    else:
-        print(f"No IP address found for {interface_name} may it be not the first network interface?")
-    #
-    ip_address = [int(x) for x in str_ip_address.split(".")]
-    return ip_address
-
+# check the current active link selecting the first link in "UP mode" status
 def get_active_link():
     """Get link (network interfaces) for running computer"""
     command = f"ip link show"
@@ -29,8 +16,8 @@ def get_active_link():
         if match != None :
             ###print (match)
             ssub = str.split(":")
-            ###print (ssub[1])
-            return ssub[1]
+            ###print ("|"+ssub[1].strip()+"|")
+            return ssub[1].strip()
 """    
     if match:
         ip_address = match.group(1)
@@ -55,6 +42,21 @@ def get_interface_ip(interface):
         return ip_address
     else:
         return None
+
+
+def inquire_network():
+    # present user the current eth0 address
+    ###interface_name = "eth0"
+    interface_name = get_active_link()
+    ##print (f"You are currently conncted by means of the {interface_name} network card")
+    str_ip_address = get_interface_ip(interface_name)
+    if str_ip_address:
+        print(f"IP address of current network interface {interface_name} is {str_ip_address}")
+    else:
+        print(f"No IP address found for {interface_name} may it be not the first network interface?")
+    #
+    ip_address = [int(x) for x in str_ip_address.split(".")]
+    return ip_address
 
 def get_ping_answ(host):
     """Get ping answer for host computer"""

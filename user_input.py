@@ -153,7 +153,7 @@ def validate_proposed_IP(starting,ip_address):
 
 
 def user_input():
-    print ("Welcome to the Network Discovery Tool\n")
+    print ("Welcome to the Host Discovery Tool\n")
     ip_address = inquire_network()
     ##print (f"\nYour current IP address is {ip_address}")
     print("\nSelect a starting IP range to the Network Discovery\n")
